@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "aldz9ZVPujAQnDLzdgWtSspflwlCoF6fNXxYEAeoRWbp6omwwjBxBnYql4jH04CLaNLB2nuF0DHtMGKek1xLZg==",
+  "success": true,
+  "projectFilePath": "/home/jesper/SoltorgLLAMA/clients/blazorClient/blazorClient.csproj",
+  "expectedPackageFiles": [
+    "/home/jesper/.nuget/packages/microsoft.aspnetcore.app.ref/5.0.0/microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
