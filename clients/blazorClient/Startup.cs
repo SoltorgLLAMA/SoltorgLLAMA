@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using blazorClient.Data;
+using MudBlazor.Services;
 
 namespace blazorClient
 {
@@ -29,6 +30,11 @@ namespace blazorClient
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMudServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
