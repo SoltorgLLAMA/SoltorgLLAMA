@@ -8,10 +8,8 @@ router.get('/', function(req, res, next) {
 
 
 
-
-// Contains all active games
-// TODO: Save this to file and load it on startup
-let games = []
+/** Contains all active games */
+let games = [] // TODO: Save this to file and load it on startup
 
 // Handle POST-request to create game
 router.post('/create-game', function(request, response) {
