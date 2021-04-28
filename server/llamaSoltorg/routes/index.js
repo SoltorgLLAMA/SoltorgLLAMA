@@ -83,14 +83,14 @@ router.post('/start-game', function(request, response) {
   let game = activeGames.find(game => game.gameID == gameID)
 
   if (game == undefined) {
-    response.send("game not found")
+    response.status(400).send("Game not found. gameID: " + gameID);
   } else if (game.gameState != 0) {
-    response.send("game already started")
+    response.status(400).send("Game already started. gameID: " + gameID);
   } else if (!game.players.some(player => player.username == username)) {
-    response.send("you are not in this game")
+    response.status(400).send("You are not in this game. gameID: " + gameID + " username: " + username);
   }
   else if (game.players.length < 2) {
-    response.send("not enough players")
+    response.status(400).send("Not enough players. gameID: " + gameID + " players: " + game.players.length);
   }
    else {
     game.gameState = 1;
