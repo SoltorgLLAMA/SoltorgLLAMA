@@ -1,6 +1,6 @@
 
 function shuffle() {
-    var currentIndex = array.length, temporaryValue, randomIndex;
+    let currentIndex = array.length, temporaryValue, randomIndex;
   
     while (0 !== currentIndex) {
         randomIndex = Math.floor(Math.random() * currentIndex);
@@ -24,7 +24,18 @@ function getShuffledDeck() {
     return shuffle(deck);
 }
 
+function countHandPoints(array) {
+    let points; 
+    for (let i = 1; i < 8; i++) {
+        if (array.includes(i)) {
+            points += i;
+        }
+    }
+    return points;
+}
+
 
 module.exports = {
+    "countHandPoints": countHandPoints,
     "shuffle": shuffle,
  }
