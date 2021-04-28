@@ -13,16 +13,7 @@ function listening() {
 
 let players = 0; //Antalet spelare som deltar i matchen.
 let activeGame = false; //bool som berättar om en match pågår.
-let deck = [];
-
-/* Funktionen som körs när en match drar igång */
-
-game();
-
-function game() {
-    activeGame = true;
-
-    deck = [1, 1, 1, 1, 1, 1, 1, 1, //Sorterad llamakortlek. 7 = llama.
+let deck = [1, 1, 1, 1, 1, 1, 1, 1, //Sorterad llamakortlek. 7 = llama.
             2, 2, 2, 2, 2, 2, 2, 2, 
             3, 3, 3, 3, 3, 3, 3, 3, 
             4, 4, 4, 4, 4, 4, 4, 4, 
@@ -30,7 +21,14 @@ function game() {
             6, 6, 6, 6, 6, 6, 6, 6,
             7, 7, 7, 7, 7, 7, 7, 7];
 
-    deck = shuffle() //Kortleken blandas
+/* Funktionen som körs när en match drar igång */
+
+game();
+
+function game() {
+    activeGame = true;
+    console.log(deck);
+    deck = shuffle(deck) //Kortleken blandas
 
     let runda = 0;
 
@@ -41,23 +39,35 @@ function game() {
         break;
     }
 
-    function shuffle() { //Funktionen som blandar kortleken.
-    let shuffledDeck = []; //Skapar en temporär array för kortleken.
-
-    for (i = 0; i < 64; i++) {
-        shuffledDeck.push(deck[Math.floor(Math.random() * deck.length)]); //Tar ett random kort från den sorterade högen och lägger den överst i den blandade högen.
-    } 
-
-    return shuffledDeck;
-    }
+    
 
     console.log(deck);
 }
 
-app.get('/ls', sendmarc);
+function shuffle(array) { //Blandar kortleken
+    var currentIndex = array.length, temporaryValue, randomIndex;
+  
+    while (0 !== currentIndex) {
+  
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+  
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+  
+    return array;
+}
 
-function sendmarc(req, res) {
-    res.send(userDocument);
+app.get('/request/:user/:password', request);
+
+function request(req, res) {
+    let data = req.params;
+    let specuser = data.user;
+    let specpassword = data.password;
+    
+    
 }
 
 app.get('/card', sendcard);
