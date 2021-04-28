@@ -65,6 +65,8 @@ router.post("/join-game", function (request, response) {
 
   // Find game with matching gameID
   let game = activeGames.find((game) => game.gameID == gameID);
+
+  // Error handling
   if (game == undefined) {
     response.status(400).send("Game not found. gameID: " + gameID);
   } else if (game.gameState != 0) {
@@ -97,6 +99,7 @@ router.post("/start-game", function (request, response) {
   let gameID = request.body.gameID;
   let game = activeGames.find((game) => game.gameID == gameID);
 
+  // Error handling
   if (game == undefined) {
     response.status(400).send("Game not found. gameID: " + gameID);
   } else if (game.gameState != 0) {
@@ -138,6 +141,7 @@ router.post("/get-game", function (request, response) {
   let gameID = request.body.gameID;
   let game = activeGames.find((game) => game.gameID == gameID);
 
+  // Error handling
   if (game == undefined) {
     response.status(400).send("Game not found. gameID: " + gameID);
   } else if (!game.players.some((player) => player.username == username)) {
