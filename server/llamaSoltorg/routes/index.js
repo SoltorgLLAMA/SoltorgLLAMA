@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
 
 
 
-/** Contains all active games */
+
 let activeGames = []
 
 // Handle POST-request to create game
@@ -28,19 +28,30 @@ router.post('/create-game', function(request, response) {
   let game = {
     "gameID" : gameID, 
     "gameState" : 0,  // Game has not started
+    "events" : [{
+      "player" : "",
+      "action" : 0, 
+    },
+    {
+      "player" : username,
+      "action" : 100,
+    },
+  ],
     "players" : [
       {
         "username" : username,
         "points" : 0,
         "cards" : [],
-        "turn": false,
+        "isTheirTurn": false,
       }
     ]
   }
 
   activeGames.push(game)
 
-  response.send(convertGameToResponse(game, username))
+  response.send({
+    "gameID" : gameID,
+  })
 })
 
 // Handle POST-request to join game
@@ -66,9 +77,16 @@ router.post('/join-game', function(request, response) {
       "username" : username,
       "points" : 0,
       "cards" : [],
-      "turn": false,
+      "isTheirTurn": false,
     })
-    response.send(convertGameToResponse(game, username))
+    // Add player-joined event
+    game.events.push(
+      {
+        "player" : username,
+        "action" : 100,
+      }
+    )
+    response.end()
   }
 })
 
@@ -93,13 +111,13 @@ router.post('/start-game', function(request, response) {
     response.status(400).send("Not enough players. gameID: " + gameID + " players: " + game.players.length);
   }
    else {
-    game.gameState = 1;
-    game.events = [[{ // Double index because on is for round and one is for event
+    game.gameState = 1
+    game.events = [{ 
       "player" : "", // Empty string, meaning that the server did something and not a player
       "action" : 1  // Round started (the 1 would mean something different if it was a player)
-    }]]
+    }]
 
-    response.send(convertGameToResponse(game, username))
+    response.end()
   }
 })
 
@@ -123,17 +141,18 @@ router.post('/get-game', function(request, response) {
 function convertGameToResponse(game, username) {
   let responseGame = {
     "gameID" : game.gameID,
-    "gameState" : game.gameState,
     "players" : [],
     "events" : game.events,
+    "cardsRemaining" : 4,
     "myCards" : [],
-    "myTurn" : false
+    "isMyTurn" : false
   }
 
   game.players.forEach(function(player) {
     responseGame.players.push({
       "username" : player.username,
       "points" : player.points, 
+      "isTheirTurn" : false,
     })
     // Only send the player's own "secret" info
     if (player.username == username) {
