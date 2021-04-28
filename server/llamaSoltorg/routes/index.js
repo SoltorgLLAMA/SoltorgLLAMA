@@ -55,6 +55,7 @@ router.post('/join-game', function(request, response) {
   let game = activeGames.find(game => game.gameID == gameID)
   if (game == undefined) {
     response.send("game not found")
+    response.send
   } else if (game.gameState != 0) {
     response.send("game already started")
   } else if (game.players.some(player => player.username == username)) {
