@@ -68,8 +68,43 @@ function playCard(game, username, card) {
     // Play card and remove it from hand
     game.discardPile.push(card)
     player.cards.splice(player.cards.indexOf(card))
+
+    advanceTurn(game)
   }
 }
+
+/** Moves the last card in drawPile to player's hand
+ * Throws error drawPile is empty
+ */
+ function drawCard(game, username) {
+  if (game.drawPile.length == 0) {
+    throw "Draw pile is empty"
+  } else {
+    let player = game.players.find(player => player.username == username)
+    let newCard = game.drawPile.pop()
+    player.cards.push(newCard)
+    advanceTurn(game)
+    return newCard
+  }
+}
+
+/**Moves the turn to the next player
+ * If it is no one's turn, meaning the game has not started,
+ * it gives the turn to the first player in game.players
+ */
+function advanceTurn(game) {
+  let turnIndex = game.players.findIndex(player => player.isTheirTurn == true)
+  if (turnIndex == -1) {
+    game.players[0].isTheirTurn = true;
+  } else if (turnIndex == game.players.length - 1) {
+    game.players[turnIndex].isTheirTurn = false;
+    game.players[0].isTheirTurn = true;
+  } else {
+    game.players[turnIndex].isTheirTurn = false;
+    game.players[turnIndex + 1].isTheirTurn = true;
+  }
+}
+
 
 function countHandPoints(array) {
     let points; 
@@ -88,4 +123,5 @@ module.exports = {
     "shuffle": shuffle,
     "getShuffledDeck" : getShuffledDeck,
     "playCard" : playCard,
+    "drawCard" : drawCard,
  }

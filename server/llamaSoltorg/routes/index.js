@@ -186,16 +186,25 @@ router.post('/action', function(request, response) {
     // Handle action
     if (action == undefined) {
       response.status(400).send("Bruh. You need to send an action!");
-    } else if (action >= 1 && action <= 7) {
+    } else if (action == 0) {
+      // Draw card
+      let drawnCard
       try {
-        gameFunctions.playCard(game, username, action)
+        drawnCard = gameFunctions.drawCard(game, username)
+        response.send({"drawnCard" : drawnCard})
       } catch (error) {
         response.status(400).send(error);
       }
     }
-
-
-    response.send()
+    else if (action >= 1 && action <= 7) {
+      // Play card
+      try {
+        gameFunctions.playCard(game, username, action)
+        response.end()
+      } catch (error) {
+        response.status(400).send(error);
+      }
+    }
   }
 })
 
