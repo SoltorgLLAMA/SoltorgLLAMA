@@ -7,7 +7,7 @@ function convertGameToResponse(game, username) {
       "players" : [],
       "events" : game.events,
       "cardsRemaining" : game.drawPile.length,
-      "myCards" : [],
+      "myCards" : [], 
       "isMyTurn" : false
     }
   
@@ -15,12 +15,12 @@ function convertGameToResponse(game, username) {
       responseGame.players.push({
         "username" : player.username,
         "points" : player.points, 
-        "isTheirTurn" : false,
+        "isTheirTurn" : player.isTheirTurn,
       })
       // Only send the player's own "secret" info
       if (player.username == username) {
         responseGame.myCards = player.cards
-        responseGame.myTurn = player.turn
+        responseGame.isMyTurn = player.isTheirTurn
       }
     })
   
@@ -69,6 +69,10 @@ function playCard(game, username, card) {
     game.discardPile.push(card)
     player.cards.splice(player.cards.indexOf(card))
 
+    game.events.push({
+      "player" : username,
+      "action" : card,
+    })
     advanceTurn(game)
   }
 }
@@ -84,6 +88,10 @@ function playCard(game, username, card) {
     let newCard = game.drawPile.pop()
     player.cards.push(newCard)
     advanceTurn(game)
+    game.events.push({
+      "player" : username,
+      "action" : 0,
+    })
     return newCard
   }
 }

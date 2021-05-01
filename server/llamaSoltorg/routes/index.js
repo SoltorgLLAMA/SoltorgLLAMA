@@ -39,12 +39,12 @@ router.post("/create-game", function (request, response) {
       "action" : 100,
     },
   ],
-    players: [
+    "players": [
       {
-        username: username,
-        points: 0,
-        cards: [],
-        isTheirTurn: false,
+        "username": username,
+        "points": 0,
+        "cards": [],
+        "isTheirTurn": false,
       },
     ],
   };
@@ -75,15 +75,15 @@ router.post("/join-game", function (request, response) {
   } else {
     // Add new player and return game object to client
     game.players.push({
-      username: username,
-      points: 0,
-      cards: [],
-      isTheirTurn: false,
+      "username": username,
+      "points": 0,
+      "cards": [],
+      "isTheirTurn": false,
     });
     // Add player-joined event
     game.events.push({
-      player: username,
-      action: 100,
+      "player": username,
+      "action": 100,
     });
     response.end();
   }
@@ -121,8 +121,8 @@ router.post("/start-game", function (request, response) {
     game.gameState = 1;
     game.events = [
       {
-        player: "", // Empty string, meaning that the server did something and not a player
-        action: 1, // Round started (the 1 would mean something different if it was a player)
+        "player": "", // Empty string, meaning that the server did something and not a player
+        "action": 1, // Round started (the 1 would mean something different if it was a player)
       },
     ];
 
