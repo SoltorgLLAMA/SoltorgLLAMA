@@ -20,16 +20,16 @@ router.post("/create-game", function (request, response) {
   let username = request.body.credentials.username;
 
   // Generate unique gameID
-  let gameID;
+  let gameID
   do {
     gameID = Math.floor(Math.random() * 1000);
-  } while (activeGames.some((game) => game.gameID == gameID));
+  } while (activeGames.some((game) => game.gameID == gameID))
 
   let game = {
     "gameID" : gameID, 
     "gameState" : 0,  // Game has not started
-    "drawPile" : gameFunctions.getShuffledDeck(),
-    "discardPile" : [], // This should have a card from the beginniing
+    "drawPile" : [],
+    "discardPile" : [], 
     "events" : [{
       "player" : "",
       "action" : 0, 
@@ -47,7 +47,7 @@ router.post("/create-game", function (request, response) {
         "isTheirTurn": false,
       },
     ],
-  };
+  }
 
   activeGames.push(game);
 
@@ -119,14 +119,28 @@ router.post("/start-game", function (request, response) {
       );
   } else {
     game.gameState = 1;
-    game.events = [
+
+    game.drawPile = gameFunctions.getShuffledDeck()
+    // Deal 6 cards to each player
+    game.players.forEach(player => {
+      for (let index = 0; index < 6; index++) {
+        player.cards.push(game.drawPile.pop())
+      }
+    });
+
+    let startCard = game.drawPile.pop()
+    game.discardPile.push(startCard)
+    game.events.push(
       {
         "player": "", // Empty string, meaning that the server did something and not a player
-        "action": 1, // Round started (the 1 would mean something different if it was a player)
-      },
-    ];
+        "action": startCard, // New round started 
+      }
+    )
+    
 
-    response.end();
+    gameFunctions.advanceTurn(game)
+
+    response.end()
   }
 });
 
@@ -183,8 +197,14 @@ router.post('/action', function(request, response) {
     response.status(400).send("You are not in this game. gameID: " + gameID + " username: " + username);
   }
   else {
+    // Is it your turn?
+    let player = game.players.find(player => player.username == username)
+    if (!player.isTheirTurn) {
+      response.status(400).send("It is not your turn.");
+    } 
+
     // Handle action
-    if (action == undefined) {
+    else if (action == undefined) {
       response.status(400).send("Bruh. You need to send an action!");
     } else if (action == 0) {
       // Draw card

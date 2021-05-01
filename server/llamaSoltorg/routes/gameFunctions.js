@@ -1,5 +1,5 @@
 /** Converts a locally stored game instance into a response to be sent to a player 
- * This is so that not all players can see all other players cards and such
+ * This is so that players only receive necessary info
 */
 function convertGameToResponse(game, username) {
     let responseGame = {
@@ -17,7 +17,7 @@ function convertGameToResponse(game, username) {
         "points" : player.points, 
         "isTheirTurn" : player.isTheirTurn,
       })
-      // Only send the player's own "secret" info
+      // Add this player's info to object root for easy access
       if (player.username == username) {
         responseGame.myCards = player.cards
         responseGame.isMyTurn = player.isTheirTurn
@@ -26,8 +26,6 @@ function convertGameToResponse(game, username) {
   
     return responseGame;
   }
-  
-
 
 function shuffle(array) {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -62,19 +60,24 @@ function playCard(game, username, card) {
 
   if (!player.cards.some(ownedCard => ownedCard == card)) {
     throw "You do not have that card."
-  } else if (card < game.discardPile[game.discardPile.length - 1]) {
-    throw "Card value is too low."
-  } else {
-    // Play card and remove it from hand
-    game.discardPile.push(card)
-    player.cards.splice(player.cards.indexOf(card))
+  } 
+  if (card < game.discardPile[game.discardPile.length - 1]) {
+    // Allow a 1 to be played on a llama
+    if (!(card == 1 && game.discardPile[game.discardPile.length - 1] == 7)) {
+      throw "Card value is too low."
+    }
+  } 
 
-    game.events.push({
-      "player" : username,
-      "action" : card,
-    })
-    advanceTurn(game)
-  }
+  // Play card and remove it from hand
+  game.discardPile.push(card)
+  player.cards.splice(player.cards.indexOf(card), 1)
+
+  game.events.push({
+    "player" : username,
+    "action" : card,
+  })
+  advanceTurn(game)
+  
 }
 
 /** Moves the last card in drawPile to player's hand
@@ -132,4 +135,5 @@ module.exports = {
     "getShuffledDeck" : getShuffledDeck,
     "playCard" : playCard,
     "drawCard" : drawCard,
+    "advanceTurn" : advanceTurn
  }
