@@ -20,33 +20,34 @@ router.post("/create-game", function (request, response) {
   let username = request.body.credentials.username;
 
   // Generate unique gameID
-  let gameID;
+  let gameID
   do {
     gameID = Math.floor(Math.random() * 1000);
-  } while (activeGames.some((game) => game.gameID == gameID));
+  } while (activeGames.some((game) => game.gameID == gameID))
 
   let game = {
-    gameID: gameID,
-    gameState: 0, // Game has not started
-    events: [
+    "gameID" : gameID, 
+    "gameState" : 0,  // Game has not started
+    "drawPile" : [],
+    "discardPile" : [], 
+    "events" : [{
+      "player" : "",
+      "action" : 0, 
+    },
+    {
+      "player" : username,
+      "action" : 100,
+    },
+  ],
+    "players": [
       {
-        player: "",
-        action: 0,
-      },
-      {
-        player: username,
-        action: 100,
+        "username": username,
+        "points": 0,
+        "cards": [],
+        "isTheirTurn": false,
       },
     ],
-    players: [
-      {
-        username: username,
-        points: 0,
-        cards: [],
-        isTheirTurn: false,
-      },
-    ],
-  };
+  }
 
   activeGames.push(game);
 
@@ -76,15 +77,15 @@ router.post("/join-game", function (request, response) {
   } else {
     // Add new player and return game object to client
     game.players.push({
-      username: username,
-      points: 0,
-      cards: [],
-      isTheirTurn: false,
+      "username": username,
+      "points": 0,
+      "cards": [],
+      "isTheirTurn": false,
     });
     // Add player-joined event
     game.events.push({
-      player: username,
-      action: 100,
+      "player": username,
+      "action": 100,
     });
     response.end();
   }
@@ -121,14 +122,28 @@ router.post("/start-game", function (request, response) {
       );
   } else {
     game.gameState = 1;
-    game.events = [
-      {
-        player: "", // Empty string, meaning that the server did something and not a player
-        action: 1, // Round started (the 1 would mean something different if it was a player)
-      },
-    ];
 
-    response.end();
+    game.drawPile = gameFunctions.getShuffledDeck()
+    // Deal 6 cards to each player
+    game.players.forEach(player => {
+      for (let index = 0; index < 6; index++) {
+        player.cards.push(game.drawPile.pop())
+      }
+    });
+
+    let startCard = game.drawPile.pop()
+    game.discardPile.push(startCard)
+    game.events.push(
+      {
+        "player": "", // Empty string, meaning that the server did something and not a player
+        "action": startCard, // New round started 
+      }
+    )
+    
+
+    gameFunctions.advanceTurn(game)
+
+    response.end()
   }
 });
 
@@ -146,38 +161,77 @@ router.post("/get-game", function (request, response) {
     response.status(400).send("Game not found. gameID: " + gameID);
   } else if (!game.players.some((player) => player.username == username)) {
     response.status(400).send("You are not in this game. gameID: " + gameID + " username: " + username);
+  } else {
+    response.send(gameFunctions.convertGameToResponse(game, username));
   }
 
-  response.send(convertGameToResponse(game, username));
+  
 });
 
-/** Converts a locally stored game instance into a response to be sent to a player
- * This is so that not all players can see all other players cards and such
- */
-function convertGameToResponse(game, username) {
-  let responseGame = {
-    gameID: game.gameID,
-    players: [],
-    events: game.events,
-    cardsRemaining: 4,
-    myCards: [],
-    isMyTurn: false,
-  };
+// Handle POST-request to get the internal model of a game
+// ONLY FOR DEBUGGING
+router.post('/get-game-raw', function(request, response) {
+  console.log('POST /')
+  console.dir(request.body)
 
-  game.players.forEach(function (player) {
-    responseGame.players.push({
-      username: player.username,
-      points: player.points,
-      isTheirTurn: false,
-    });
-    // Only send the player's own "secret" info
-    if (player.username == username) {
-      responseGame.myCards = player.cards;
-      responseGame.myTurn = player.turn;
+  let gameID = request.body.gameID
+  let game = activeGames.find(game => game.gameID == gameID)
+
+  response.send(game)
+
+})
+
+// Handle POST-request to play an action in an active game
+router.post('/action', function(request, response) {
+  console.log('POST /')
+  console.dir(request.body)
+
+  
+  let username = request.body.credentials.username
+  let action = request.body.action
+  let gameID = request.body.gameID
+  let game = activeGames.find(game => game.gameID == gameID)
+
+  // Check if game is valid
+  if (game == undefined) {
+    response.status(400).send("Game not found. gameID: " + gameID);
+  } else if (game.gameState == 0) {
+    response.status(400).send("Game not started. gameID: " + gameID);
+  } else if (!game.players.some(player => player.username == username)) {
+    response.status(400).send("You are not in this game. gameID: " + gameID + " username: " + username);
+  }
+  else {
+    // Is it your turn?
+    let player = game.players.find(player => player.username == username)
+    if (!player.isTheirTurn) {
+      response.status(400).send("It is not your turn.");
+    } 
+
+    // Handle action
+    else if (action == undefined) {
+      response.status(400).send("Bruh. You need to send an action!");
+    } else if (action == 0) {
+      // Draw card
+      let drawnCard
+      try {
+        drawnCard = gameFunctions.drawCard(game, username)
+        response.send({"drawnCard" : drawnCard})
+      } catch (error) {
+        response.status(400).send(error);
+      }
     }
-  });
+    else if (action >= 1 && action <= 7) {
+      // Play card
+      try {
+        gameFunctions.playCard(game, username, action)
+        response.end()
+      } catch (error) {
+        response.status(400).send(error);
+      }
+    }
+  }
+})
 
-  return responseGame;
-}
+
 
 module.exports = router;
