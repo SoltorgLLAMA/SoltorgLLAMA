@@ -27,6 +27,65 @@ function convertGameToResponse(game, username) {
     return responseGame;
   }
 
+/** Creates a game with empty values, with the provided gameID */
+function createGame(gameID) {
+  return {
+    "gameID" : gameID, 
+    "gameState" : 0,  // Game has not started
+    "drawPile" : [],
+    "discardPile" : [], 
+    "events" : [
+      {
+      "player" : "",
+      "action" : 0, 
+      },
+    ],
+    "players": [],
+  }
+}
+
+/** Adds a player to a game and creates corresponding event */
+function addPlayer(game, username) {
+  game.players.push(
+    {
+      "username": username,
+      "points": 0,
+      "cards": [],
+      "isTheirTurn": false,
+    }
+  )
+  game.events.push(
+    {
+      "player" : username,
+      "action" : 100,
+    }
+  )
+}
+
+/** Prepares the deck, deals cards and gives the turn to the first player */
+function startGame(game) {
+  game.gameState = 1;
+  game.drawPile = getShuffledDeck()
+
+  // Deal 6 cards to each player
+  game.players.forEach(player => {
+    for (let index = 0; index < 6; index++) {
+      player.cards.push(game.drawPile.pop())
+    }
+  });
+
+  let startCard = game.drawPile.pop()
+  game.discardPile.push(startCard)
+  game.events.push(
+    {
+      "player": "", // Empty string, meaning that the server did something and not a player
+      "action": startCard, 
+    }
+  )
+
+  advanceTurn(game)
+}
+
 function shuffle(array) {
     let currentIndex = array.length, temporaryValue, randomIndex;
   
@@ -130,6 +189,9 @@ function countHandPoints(array) {
 
 module.exports = {
     "convertGameToResponse" : convertGameToResponse,
+    "createGame" : createGame,
+    "addPlayer" : addPlayer,
+    "startGame" : startGame,
     "countHandPoints": countHandPoints,
     "shuffle": shuffle,
     "getShuffledDeck" : getShuffledDeck,

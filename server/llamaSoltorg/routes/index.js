@@ -25,29 +25,8 @@ router.post("/create-game", function (request, response) {
     gameID = Math.floor(Math.random() * 1000);
   } while (activeGames.some((game) => game.gameID == gameID))
 
-  let game = {
-    "gameID" : gameID, 
-    "gameState" : 0,  // Game has not started
-    "drawPile" : [],
-    "discardPile" : [], 
-    "events" : [{
-      "player" : "",
-      "action" : 0, 
-    },
-    {
-      "player" : username,
-      "action" : 100,
-    },
-  ],
-    "players": [
-      {
-        "username": username,
-        "points": 0,
-        "cards": [],
-        "isTheirTurn": false,
-      },
-    ],
-  }
+  let game = gameFunctions.createGame(gameID)
+  gameFunctions.addPlayer(game, username)
 
   activeGames.push(game);
 
@@ -75,18 +54,7 @@ router.post("/join-game", function (request, response) {
   } else if (game.players.some((player) => player.username == username)) {
     response.status(400).send("Already joined this game. gameID: " + gameID);
   } else {
-    // Add new player and return game object to client
-    game.players.push({
-      "username": username,
-      "points": 0,
-      "cards": [],
-      "isTheirTurn": false,
-    });
-    // Add player-joined event
-    game.events.push({
-      "player": username,
-      "action": 100,
-    });
+    gameFunctions.addPlayer(game, username)
     response.end();
   }
 });
@@ -121,27 +89,8 @@ router.post("/start-game", function (request, response) {
           game.players.length
       );
   } else {
-    game.gameState = 1;
-
-    game.drawPile = gameFunctions.getShuffledDeck()
-    // Deal 6 cards to each player
-    game.players.forEach(player => {
-      for (let index = 0; index < 6; index++) {
-        player.cards.push(game.drawPile.pop())
-      }
-    });
-
-    let startCard = game.drawPile.pop()
-    game.discardPile.push(startCard)
-    game.events.push(
-      {
-        "player": "", // Empty string, meaning that the server did something and not a player
-        "action": startCard, // New round started 
-      }
-    )
     
-
-    gameFunctions.advanceTurn(game)
+    gameFunctions.startGame(game)
 
     response.end()
   }
