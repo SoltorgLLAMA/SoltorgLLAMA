@@ -16,6 +16,7 @@ function convertGameToResponse(game, username) {
         "username" : player.username,
         "points" : player.points, 
         "isTheirTurn" : player.isTheirTurn,
+        "hasQuitRound" : player.hasQuitRound,
       })
       // Add this player's info to object root for easy access
       if (player.username == username) {
@@ -51,6 +52,7 @@ function addPlayer(game, username) {
       "username": username,
       "points": 0,
       "cards": [],
+      "hasQuitRound" : false,
       "isTheirTurn": false,
     }
   )
@@ -63,8 +65,8 @@ function addPlayer(game, username) {
 }
 
 /** Prepares the deck, deals cards and gives the turn to the first player */
-function startGame(game) {
-  game.gameState = 1;
+function startRound(game) {
+  game.gameState++
   game.drawPile = getShuffledDeck()
 
   // Deal 6 cards to each player
@@ -158,20 +160,34 @@ function playCard(game, username, card) {
   }
 }
 
+function quitRound(game, username) {
+  let player = game.players.find(player => player.username == username)
+  advanceTurn(game)
+  player.hasQuitRound = true
+}
+
 /**Moves the turn to the next player
  * If it is no one's turn, meaning the game has not started,
  * it gives the turn to the first player in game.players
  */
 function advanceTurn(game) {
-  let turnIndex = game.players.findIndex(player => player.isTheirTurn == true)
+  let activePlayers = game.players.filter(player => player.hasQuitRound == false)
+
+  let turnIndex = activePlayers.findIndex(player => player.isTheirTurn == true)
+  
+  // This is (hopefully) a temporary solution. I am sorry. 
+  game.players.forEach(player => player.isTheirTurn = false)
+
+
   if (turnIndex == -1) {
-    game.players[0].isTheirTurn = true;
-  } else if (turnIndex == game.players.length - 1) {
-    game.players[turnIndex].isTheirTurn = false;
-    game.players[0].isTheirTurn = true;
+    activePlayers[0].isTheirTurn = true;
+
+  } else if (turnIndex == activePlayers.length - 1) {
+    activePlayers[turnIndex].isTheirTurn = false;
+    activePlayers[0].isTheirTurn = true;
   } else {
-    game.players[turnIndex].isTheirTurn = false;
-    game.players[turnIndex + 1].isTheirTurn = true;
+    activePlayers[turnIndex].isTheirTurn = false;
+    activePlayers[turnIndex + 1].isTheirTurn = true;
   }
 }
 
@@ -191,11 +207,12 @@ module.exports = {
     "convertGameToResponse" : convertGameToResponse,
     "createGame" : createGame,
     "addPlayer" : addPlayer,
-    "startGame" : startGame,
+    "startRound" : startRound,
     "countHandPoints": countHandPoints,
     "shuffle": shuffle,
     "getShuffledDeck" : getShuffledDeck,
     "playCard" : playCard,
     "drawCard" : drawCard,
+    "quitRound" : quitRound,
     "advanceTurn" : advanceTurn
  }

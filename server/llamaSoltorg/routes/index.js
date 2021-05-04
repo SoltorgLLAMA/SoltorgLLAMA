@@ -90,7 +90,7 @@ router.post("/start-game", function (request, response) {
       );
   } else {
     
-    gameFunctions.startGame(game)
+    gameFunctions.startRound(game)
 
     response.end()
   }
@@ -177,6 +177,11 @@ router.post('/action', function(request, response) {
       } catch (error) {
         response.status(400).send(error);
       }
+    }
+    else if (action == 8) {
+      // Quit round
+      gameFunctions.quitRound(game, username)
+      response.end()
     }
   }
 })
