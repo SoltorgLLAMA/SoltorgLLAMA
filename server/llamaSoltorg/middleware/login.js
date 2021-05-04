@@ -1,6 +1,6 @@
 let testArray = [
-    { id: 1, user: 'jesper', passwd: 'hejhej' },
-    { id: 2, user: 'person', passwd: 'hej' }
+    { id: 1, username: 'jesper', password: 'hejhej' },
+    { id: 2, username: 'person', password: 'hej' }
 ];
 /*
     Middleware for login
@@ -12,21 +12,26 @@ let testArray = [
 */
 function login(request, response, next) {
 
-  let username = request.body.credentials.username;
-  let password = request.body.credentials.password;
+    let InputUsername = request.body.credentials.username;
+    let InputPassword = request.body.credentials.password;
 
-    const validUsername = !!testArray.find(user => {
-        return user.username === username;
+    const validUsername = !!testArray.find(username => {
+        return username.username === InputUsername;
     });
     const validPassword = !!testArray.find(password => {
-        return password.password === password;
+        return password.password === InputPassword;
     });
 
     if (validUsername && validPassword) {
-        console.log('Login sucessful by user: ' + username);
+        console.log('Login by user: ' + username);
         return next();
     }
 
-    res.redirect('/');
+    response.status(401).send("Login failed");
+    response.redirect('/');
     console.log('Failed login');
+}
+
+module.exports = {
+    "login": login
 }
