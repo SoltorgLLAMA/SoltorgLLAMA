@@ -10,6 +10,23 @@ let testArray = [
             better log
             better redirect to show why fail
 */
+
+function createAccount(request, response, next) {
+    let InputUsername = request.body.credentials.username;
+    let InputPassword = request.body.credentials.password;
+
+    const usernameTaken = !!testArray.find(username => {
+        return username.username === InputUsername;
+    })
+
+    if (!usernameTaken) {
+        // Add account to db/users.js
+    }
+    response.status(400).send("Username already taken, username: " + InputUsername);
+    response.redirect('/');
+    console.log("Username already taken, username: " + InputUsername);
+}
+
 function login(request, response, next) {
 
     let InputUsername = request.body.credentials.username;
