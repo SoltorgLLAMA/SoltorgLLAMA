@@ -71,6 +71,7 @@ function startRound(game) {
 
   // Deal 6 cards to each player
   game.players.forEach(player => {
+    player.cards = [] // First empty hand from previous round
     for (let index = 0; index < 6; index++) {
       player.cards.push(game.drawPile.pop())
     }
@@ -86,6 +87,62 @@ function startRound(game) {
   )
 
   advanceTurn(game)
+}
+
+/**Ends the round and calls startRound() or
+ * endGame() depending on if someone has won
+ */
+function endRound(game) {
+  // Deal points to each player
+  game.players.forEach(player => {
+
+    player.isTheirTurn = false
+
+    let gainedPoints
+    
+    // Check if player won round and should 
+    // get to remove some points
+    if (player.cards.length == 0) {
+      if (player.points >= 10) {
+        gainedPoints = -10
+      } else {
+        gainedPoints = -1
+      }
+    } else {
+      gainedPoints = countHandPoints(player.cards)
+    }
+
+    player.points += gainedPoints
+    
+    // Reveal hand through event
+    game.events.push(
+      {
+        "player" : player.username,
+        "action" : 9,
+        "cards" : player.cards,
+        "gainedPoints" : gainedPoints,
+      }
+    )
+  })
+
+  // Check if someone has lost
+  if (game.players.some(player => player.points >= 40)) {
+    // End game
+    endGame(game)
+  } else {
+    // Start new round
+    startRound(game)
+  }
+}
+
+function endGame(game) {
+  gameState = -1;
+  game.events.push(
+    {
+      "player" : "",
+      "action" : 1337
+    }
+  )
 }
 
 function shuffle(array) {
@@ -137,8 +194,13 @@ function playCard(game, username, card) {
     "player" : username,
     "action" : card,
   })
-  advanceTurn(game)
-  
+
+  // Check if player won the round 
+  if (player.cards.length == 0) {
+    endRound(game)
+  } else {
+    advanceTurn(game)
+  }
 }
 
 /** Moves the last card in drawPile to player's hand
@@ -162,8 +224,14 @@ function playCard(game, username, card) {
 
 function quitRound(game, username) {
   let player = game.players.find(player => player.username == username)
-  advanceTurn(game)
   player.hasQuitRound = true
+
+  // Check if there are players left in the round
+  if (game.players.some(player => player.hasQuitRound == false)) {
+    advanceTurn(game)
+  } else {
+    endRound(game)
+  }
 }
 
 /**Moves the turn to the next player
@@ -171,21 +239,25 @@ function quitRound(game, username) {
  * it gives the turn to the first player in game.players
  */
 function advanceTurn(game) {
-  let activePlayers = game.players.filter(player => player.hasQuitRound == false)
+  let activePlayers = game.players.filter(player => player.hasQuitRound == false || player.isTheirTurn == true)
+  
+  // Ideally, this function should not be called if 
+  // this is the case, but somehow it does...
+  if (activePlayers.length == 0) {
+    return
+  }
 
   let turnIndex = activePlayers.findIndex(player => player.isTheirTurn == true)
-  
-  // This is (hopefully) a temporary solution. I am sorry. 
-  game.players.forEach(player => player.isTheirTurn = false)
-
 
   if (turnIndex == -1) {
+    // No player has the turn - give it to the first player
     activePlayers[0].isTheirTurn = true;
-
   } else if (turnIndex == activePlayers.length - 1) {
+    // The last player has the turn - give it to the first player
     activePlayers[turnIndex].isTheirTurn = false;
     activePlayers[0].isTheirTurn = true;
   } else {
+    // A player has the turn - give it to the next player
     activePlayers[turnIndex].isTheirTurn = false;
     activePlayers[turnIndex + 1].isTheirTurn = true;
   }
@@ -193,7 +265,7 @@ function advanceTurn(game) {
 
 
 function countHandPoints(array) {
-    let points; 
+    let points = 0; 
     for (let i = 1; i < 8; i++) {
         if (array.includes(i)) {
             points += i;

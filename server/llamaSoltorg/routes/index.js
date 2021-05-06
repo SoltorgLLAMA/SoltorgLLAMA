@@ -26,6 +26,11 @@ router.post("/create-game", login.login, function(request, response) {
         gameID = Math.floor(Math.random() * 1000);
     } while (activeGames.some((game) => game.gameID == gameID))
 
+    // Set gameID to 1 if possible for easy debugging
+    if (!activeGames.some((game) => game.gameID == gameID)) {
+        gameID = 1
+    }
+
     let game = gameFunctions.createGame(gameID)
     gameFunctions.addPlayer(game, username)
 
