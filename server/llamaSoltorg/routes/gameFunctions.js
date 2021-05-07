@@ -38,7 +38,7 @@ function createGame(gameID) {
     "events" : [
       {
       "player" : "",
-      "action" : 0, 
+      "action" : 100, 
       },
     ],
     "players": [],
@@ -93,6 +93,13 @@ function startRound(game) {
  * endGame() depending on if someone has won
  */
 function endRound(game) {
+  game.events.push(
+    {
+      "player" : "",
+      "action" : 8
+    }
+  )
+
   // Deal points to each player
   game.players.forEach(player => {
 
@@ -140,7 +147,7 @@ function endGame(game) {
   game.events.push(
     {
       "player" : "",
-      "action" : 1337
+      "action" : 101
     }
   )
 }
