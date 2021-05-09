@@ -27,7 +27,7 @@ router.post("/create-game", login.login, function(request, response) {
     } while (activeGames.some((game) => game.gameID == gameID))
 
     // Set gameID to 1 if possible for easy debugging
-    if (!activeGames.some((game) => game.gameID == gameID)) {
+    if (!activeGames.some((game) => game.gameID == 1)) {
         gameID = 1
     }
 
