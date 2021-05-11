@@ -150,8 +150,18 @@ router.post("/get-game-raw", function (request, response) {
 // Games not started and not private
 router.post("/available-games", login.login, function (request, response) {
   let availableGames = [];
-  activeGames.forEach((game) => {});
-  response.send(activeGames);
+  activeGames.forEach((game) => {
+    if (!game.private && game.gameState === 0) {
+      let playersInt = game.players.length;
+      let gameObj = {
+        gameID: game.gameID,
+        gameState: game.gameState,
+        players: playersInt
+      }
+      availableGames.push(gameObj);
+    }
+  });
+  response.send(availableGames);
 });
 
 // Handle POST-request to play an action in an active game
