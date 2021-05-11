@@ -7,11 +7,10 @@ var users = require('./users.json');
     Middleware for login
     Checking username and password against db/file
     TODO:
-            connect to database/file
-            better log
             better redirect to show why fail
 */
 
+/** Creates account and adds to file users.json */
 function createAccount(request, response, next) {
     let InputUsername = request.body.credentials.username;
     let InputPassword = request.body.credentials.password;
@@ -37,6 +36,7 @@ function createAccount(request, response, next) {
     response.redirect('/');
 }
 
+/** Logins by checking against users.json */
 function login(request, response, next) {
 
     let InputUsername = request.body.credentials.username;

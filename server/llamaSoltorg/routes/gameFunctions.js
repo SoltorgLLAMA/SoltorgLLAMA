@@ -29,10 +29,11 @@ function convertGameToResponse(game, username) {
   }
 
 /** Creates a game with empty values, with the provided gameID */
-function createGame(gameID) {
+function createGame(gameID, private) {
   return {
     "gameID" : gameID, 
     "gameState" : 0,  // Game has not started
+    "private" : private,
     "drawPile" : [],
     "discardPile" : [], 
     "events" : [
