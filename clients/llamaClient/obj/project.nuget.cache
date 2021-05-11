@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "GXgltuA/Gv+7L/AQxTAzSHcwDy+k9FdDb/g1K7tsSeupjOVciM2n8omS6QTSVNvVHBnc4ucpemMKstyry6fkJg==",
+  "success": true,
+  "projectFilePath": "/home/jesper/SoltorgLLAMA/clients/llamaClient/llamaClient.csproj",
+  "expectedPackageFiles": [
+    "/home/jesper/.nuget/packages/microsoft.aspnetcore.app.ref/5.0.0/microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
