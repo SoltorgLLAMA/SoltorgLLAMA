@@ -13,11 +13,15 @@ router.get("/", function(req, res, next) {
 
 let activeGames = []
 
+// Create account
+router.post("/create-account", login.createAccount, function(request, response) {
+  response.send("Hell yeah");
+})
+
 // Handle POST-request to create game
 router.post("/create-game", login.login, function(request, response) {
     console.log("POST /");
     console.dir(request.body);
-
     let username = request.body.credentials.username;
 
     // Generate unique gameID

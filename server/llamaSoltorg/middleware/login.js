@@ -1,7 +1,8 @@
-let testArray = [
-    { id: 1, username: 'jesper', password: 'hejhej' },
-    { id: 2, username: 'person', password: 'hej' }
-];
+const fs = require("fs");
+var bodyParser = require("body-parser");
+const { json } = require("body-parser");
+var users = require('./users.json');
+
 /*
     Middleware for login
     Checking username and password against db/file
@@ -15,35 +16,43 @@ function createAccount(request, response, next) {
     let InputUsername = request.body.credentials.username;
     let InputPassword = request.body.credentials.password;
 
-    const usernameTaken = !!testArray.find(username => {
-        return username.username === InputUsername;
+    let usernameTaken = !!users.find(user => {
+        return user.username === InputUsername;
     })
+    console.log(usernameTaken);
 
     if (!usernameTaken) {
-        // Add account to db/users.js
+        let newUser = {
+            username: InputUsername,
+            password: InputPassword
+        };
+        users.push(newUser);
+        let newStringUser = JSON.stringify(users, null, 2);
+        fs.writeFileSync("./middleware/users.json", newStringUser);
+
+        return next();
     }
     response.status(400).send("Username already taken, username: " + InputUsername);
-    response.redirect('/');
     console.log("Username already taken, username: " + InputUsername);
+    response.redirect('/');
 }
 
 function login(request, response, next) {
-    // did not work :(
-    return next()
 
     let InputUsername = request.body.credentials.username;
     let InputPassword = request.body.credentials.password;
 
+    console.log("Login middleware");
     
-    const validUsername = !!testArray.find(username => {
-        return username === InputUsername;
+    let validUsername = !!users.find(user => {
+        return user.username === InputUsername;
     });
-    const validPassword = !!testArray.find(password => {
-        return password === InputPassword;
+    let validPassword = !!users.find(user => {
+        return user.password === InputPassword;
     });
     
     if (validUsername && validPassword) {
-        console.log('Login by user: ' + username);
+        console.log('Login by user: ' + InputUsername);
         return next();
     }
 
@@ -53,5 +62,6 @@ function login(request, response, next) {
 }
 
 module.exports = {
-    "login": login
+    "login": login,
+    "createAccount": createAccount
 }
