@@ -2,44 +2,45 @@
  * This is so that players only receive necessary info
 */
 function convertGameToResponse(game, username) {
-    let responseGame = {
-      "gameID" : game.gameID,
-      "players" : [],
-      "events" : game.events,
-      "cardsRemaining" : game.drawPile.length,
-      "myCards" : [], 
-      "isMyTurn" : false
-    }
-  
-    game.players.forEach(function(player) {
-      responseGame.players.push({
-        "username" : player.username,
-        "points" : player.points, 
-        "isTheirTurn" : player.isTheirTurn,
-        "hasQuitRound" : player.hasQuitRound,
-      })
-      // Add this player's info to object root for easy access
-      if (player.username == username) {
-        responseGame.myCards = player.cards
-        responseGame.isMyTurn = player.isTheirTurn
-      }
-    })
-  
-    return responseGame;
+  let responseGame = {
+    "gameID": game.gameID,
+    "players": [],
+    "events": game.events,
+    "cardsRemaining": game.drawPile.length,
+    "myCards": [],
+    "isMyTurn": false
   }
+
+  game.players.forEach(function (player) {
+    responseGame.players.push({
+      "username": player.username,
+      "points": player.points,
+      "isTheirTurn": player.isTheirTurn,
+      "hasQuitRound": player.hasQuitRound,
+      "numOfCards": 0,
+    })
+    // Add this player's info to object root for easy access
+    if (player.username == username) {
+      responseGame.myCards = player.cards
+      responseGame.isMyTurn = player.isTheirTurn
+    }
+  })
+
+  return responseGame;
+}
 
 /** Creates a game with empty values, with the provided gameID */
 function createGame(gameID, private) {
   return {
-    "gameID" : gameID, 
-    "gameState" : 0,  // Game has not started
-    "private" : private,
-    "drawPile" : [],
-    "discardPile" : [], 
-    "events" : [
+    "gameID": gameID,
+    "gameState": 0,  // Game has not started
+    "private": private,
+    "drawPile": [],
+    "discardPile": [],
+    "events": [
       {
-      "player" : "",
-      "action" : 100, 
+        "player": "",
+        "action": 100,
       },
     ],
     "players": [],
@@ -53,14 +54,15 @@ function addPlayer(game, username) {
       "username": username,
       "points": 0,
       "cards": [],
-      "hasQuitRound" : false,
+      "hasQuitRound": false,
       "isTheirTurn": false,
+      "numOfCards": player.cards.length,
     }
   )
   game.events.push(
     {
-      "player" : username,
-      "action" : 100,
+      "player": username,
+      "action": 100,
     }
   )
 }
@@ -83,7 +85,7 @@ function startRound(game) {
   game.events.push(
     {
       "player": "", // Empty string, meaning that the server did something and not a player
-      "action": startCard, 
+      "action": startCard,
     }
   )
 
@@ -96,8 +98,8 @@ function startRound(game) {
 function endRound(game) {
   game.events.push(
     {
-      "player" : "",
-      "action" : 8
+      "player": "",
+      "action": 8
     }
   )
 
@@ -107,7 +109,7 @@ function endRound(game) {
     player.isTheirTurn = false
 
     let gainedPoints
-    
+
     // Check if player won round and should 
     // get to remove some points
     if (player.cards.length == 0) {
@@ -121,14 +123,14 @@ function endRound(game) {
     }
 
     player.points += gainedPoints
-    
+
     // Reveal hand through event
     game.events.push(
       {
-        "player" : player.username,
-        "action" : 9,
-        "cards" : player.cards,
-        "gainedPoints" : gainedPoints,
+        "player": player.username,
+        "action": 9,
+        "cards": player.cards,
+        "gainedPoints": gainedPoints,
       }
     )
   })
@@ -147,35 +149,35 @@ function endGame(game) {
   gameState = -1;
   game.events.push(
     {
-      "player" : "",
-      "action" : 101
+      "player": "",
+      "action": 101
     }
   )
 }
 
 function shuffle(array) {
-    let currentIndex = array.length, temporaryValue, randomIndex;
-  
-    while (0 !== currentIndex) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
-  
-    return array;
+  let currentIndex = array.length, temporaryValue, randomIndex;
+
+  while (0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
 }
 
 function getShuffledDeck() {
-    let deck = [1, 1, 1, 1, 1, 1, 1, 1,
-                2, 2, 2, 2, 2, 2, 2, 2, 
-                3, 3, 3, 3, 3, 3, 3, 3, 
-                4, 4, 4, 4, 4, 4, 4, 4, 
-                5, 5, 5, 5, 5, 5, 5, 5, 
-                6, 6, 6, 6, 6, 6, 6, 6,
-                7, 7, 7, 7, 7, 7, 7, 7];
-    return shuffle(deck);
+  let deck = [1, 1, 1, 1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2, 2, 2, 2,
+    3, 3, 3, 3, 3, 3, 3, 3,
+    4, 4, 4, 4, 4, 4, 4, 4,
+    5, 5, 5, 5, 5, 5, 5, 5,
+    6, 6, 6, 6, 6, 6, 6, 6,
+    7, 7, 7, 7, 7, 7, 7, 7];
+  return shuffle(deck);
 }
 
 /** Moves the specified card from the player's hand to the discard pile
@@ -186,21 +188,21 @@ function playCard(game, username, card) {
 
   if (!player.cards.some(ownedCard => ownedCard == card)) {
     throw "You do not have that card."
-  } 
+  }
   if (card < game.discardPile[game.discardPile.length - 1]) {
     // Allow a 1 to be played on a llama
     if (!(card == 1 && game.discardPile[game.discardPile.length - 1] == 7)) {
       throw "Card value is too low."
     }
-  } 
+  }
 
   // Play card and remove it from hand
   game.discardPile.push(card)
   player.cards.splice(player.cards.indexOf(card), 1)
 
   game.events.push({
-    "player" : username,
-    "action" : card,
+    "player": username,
+    "action": card,
   })
 
   // Check if player won the round 
@@ -214,7 +216,7 @@ function playCard(game, username, card) {
 /** Moves the last card in drawPile to player's hand
  * Throws error drawPile is empty
  */
- function drawCard(game, username) {
+function drawCard(game, username) {
   if (game.drawPile.length == 0) {
     throw "Draw pile is empty"
   } else {
@@ -223,8 +225,8 @@ function playCard(game, username, card) {
     player.cards.push(newCard)
     advanceTurn(game)
     game.events.push({
-      "player" : username,
-      "action" : 0,
+      "player": username,
+      "action": 0,
     })
     return newCard
   }
@@ -248,7 +250,7 @@ function quitRound(game, username) {
  */
 function advanceTurn(game) {
   let activePlayers = game.players.filter(player => player.hasQuitRound == false || player.isTheirTurn == true)
-  
+
   // Ideally, this function should not be called if 
   // this is the case, but somehow it does...
   if (activePlayers.length == 0) {
@@ -273,26 +275,26 @@ function advanceTurn(game) {
 
 
 function countHandPoints(array) {
-    let points = 0; 
-    for (let i = 1; i < 8; i++) {
-        if (array.includes(i)) {
-            points += i;
-        }
+  let points = 0;
+  for (let i = 1; i < 8; i++) {
+    if (array.includes(i)) {
+      points += i;
     }
-    return points;
+  }
+  return points;
 }
 
 
 module.exports = {
-    "convertGameToResponse" : convertGameToResponse,
-    "createGame" : createGame,
-    "addPlayer" : addPlayer,
-    "startRound" : startRound,
-    "countHandPoints": countHandPoints,
-    "shuffle": shuffle,
-    "getShuffledDeck" : getShuffledDeck,
-    "playCard" : playCard,
-    "drawCard" : drawCard,
-    "quitRound" : quitRound,
-    "advanceTurn" : advanceTurn
- }
+  "convertGameToResponse": convertGameToResponse,
+  "createGame": createGame,
+  "addPlayer": addPlayer,
+  "startRound": startRound,
+  "countHandPoints": countHandPoints,
+  "shuffle": shuffle,
+  "getShuffledDeck": getShuffledDeck,
+  "playCard": playCard,
+  "drawCard": drawCard,
+  "quitRound": quitRound,
+  "advanceTurn": advanceTurn
+}
