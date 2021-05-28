@@ -72,7 +72,12 @@ function startRound(game) {
 
   // Deal 6 cards to each player
   game.players.forEach(player => {
-    player.cards = [] // First empty hand from previous round
+    // First reset turn and empty hand from previous round
+    player.isTheirTurn = false; 
+    player.hasQuitRound = false;
+    player.cards = [] 
+
+    // Draw cards
     for (let index = 0; index < 6; index++) {
       player.cards.push(game.drawPile.pop())
     }
