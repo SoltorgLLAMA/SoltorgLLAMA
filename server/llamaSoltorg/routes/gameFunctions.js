@@ -1,6 +1,11 @@
-/** Converts a locally stored game instance into a response to be sent to a player 
- * This is so that players only receive necessary info
-*/
+/**
+ * Converts a locally stored game instance into a response tailor-made
+ * for the player with the provided username.
+ * This is so that players only receive necessary info.
+ * @param {object} game 
+ * @param {string} username 
+ * @returns {object}
+ */
 function convertGameToResponse(game, username) {
   let responseGame = {
     "gameID": game.gameID,
@@ -29,7 +34,13 @@ function convertGameToResponse(game, username) {
   return responseGame;
 }
 
-/** Creates a game with empty values, with the provided gameID */
+
+/**
+ * Creates a game with empty values, with the provided gameID
+ * @param {object} gameID 
+ * @param {bool} private whether the game should be discoverable by everyone or not
+ * @returns 
+ */
 function createGame(gameID, private) {
   return {
     "gameID": gameID,
@@ -47,7 +58,11 @@ function createGame(gameID, private) {
   }
 }
 
-/** Adds a player to a game and creates corresponding event */
+/**
+ * Adds a player to a game and creates corresponding event
+ * @param {object} game 
+ * @param {string} username the new player's username
+ */
 function addPlayer(game, username) {
   game.players.push(
     {
@@ -66,8 +81,12 @@ function addPlayer(game, username) {
   )
 }
 
-/** Prepares the deck, deals cards and gives the turn to the first player */
-function startRound(game) {
+/**
+ * Prepares the deck, deals cards and gives the turn to the first player
+ * @param {object} game 
+ * @param {string} startingPlayerUsername username of the player who should start the next round (optional)
+ */
+function startRound(game, startingPlayerUsername) {
   game.gameState++
   game.drawPile = getShuffledDeck()
 
@@ -93,13 +112,16 @@ function startRound(game) {
     }
   )
 
-  advanceTurn(game)
+  advanceTurn(game, startingPlayerUsername)
 }
 
-/**Ends the round and calls startRound() or
- * endGame() depending on if someone has won
+/**
+ * Ends the round and calls startRound() or
+ * endGame() depending on if someone has won or not
+ * @param {object} game 
+ * @param {string} startingPlayerUsername username of the player who should start the next round (optional)
  */
-function endRound(game) {
+function endRound(game, startingPlayerUsername) {
   game.events.push(
     {
       "player": "",
@@ -145,10 +167,14 @@ function endRound(game) {
     endGame(game)
   } else {
     // Start new round
-    startRound(game)
+    startRound(game, startingPlayerUsername)
   }
 }
 
+/**
+ * Sets gameState to -1 and adds the final game-ended event
+ * @param {object} game 
+ */
 function endGame(game) {
   gameState = -1;
   game.events.push(
@@ -159,6 +185,11 @@ function endGame(game) {
   )
 }
 
+/**
+ * Returns a shuffled version of the provided array
+ * @param {array} array 
+ * @returns {array}
+ */
 function shuffle(array) {
   let currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -173,6 +204,10 @@ function shuffle(array) {
   return array;
 }
 
+/**
+ * Returns a full set of cards represented as integers
+ * @returns {array}
+ */
 function getShuffledDeck() {
   let deck = [1, 1, 1, 1, 1, 1, 1, 1,
     2, 2, 2, 2, 2, 2, 2, 2,
@@ -184,8 +219,12 @@ function getShuffledDeck() {
   return shuffle(deck);
 }
 
-/** Moves the specified card from the player's hand to the discard pile
+/**
+ * Moves a card of the specified value from the player's hand to the discard pile
  * Throws error if player attempts to make an illegal move
+ * @param {object} game 
+ * @param {string} username 
+ * @param {int} card 
  */
 function playCard(game, username, card) {
   let player = game.players.find(player => player.username == username)
@@ -211,14 +250,18 @@ function playCard(game, username, card) {
 
   // Check if player won the round 
   if (player.cards.length == 0) {
-    endRound(game)
+    endRound(game, player.username)
   } else {
     advanceTurn(game)
   }
 }
 
-/** Moves the last card in drawPile to player's hand
+/**
+ * Moves the last card in drawPile to player's hand
  * Throws error drawPile is empty
+ * @param {object} game 
+ * @param {string} username 
+ * @returns {int} the drawn card
  */
 function drawCard(game, username) {
   if (game.drawPile.length == 0) {
@@ -236,23 +279,33 @@ function drawCard(game, username) {
   }
 }
 
+/** 
+ * The player with the provided username is quits the current round
+ * @param {object} game 
+ * @param {string} username 
+ */
 function quitRound(game, username) {
   let player = game.players.find(player => player.username == username)
   player.hasQuitRound = true
 
   // Check if there are players left in the round
   if (game.players.some(player => player.hasQuitRound == false)) {
-    advanceTurn(game)
+    advanceTurn(game,)
   } else {
-    endRound(game)
+    endRound(game, player.username)
   }
 }
 
-/**Moves the turn to the next player
+/**
+ * Moves the turn to the next player
  * If it is no one's turn, meaning the game has not started,
- * it gives the turn to the first player in game.players
+ * it gives the turn to the player with the provided username.
+ * If no username is provided, the first player gets the turn
+ * @param {*} game 
+ * @param {*} username (optional) the player to give the turn to
+ * @returns 
  */
-function advanceTurn(game) {
+function advanceTurn(game, username) {
   let activePlayers = game.players.filter(player => player.hasQuitRound == false || player.isTheirTurn == true)
 
   // Ideally, this function should not be called if 
@@ -264,8 +317,17 @@ function advanceTurn(game) {
   let turnIndex = activePlayers.findIndex(player => player.isTheirTurn == true)
 
   if (turnIndex == -1) {
-    // No player has the turn - give it to the first player
-    activePlayers[0].isTheirTurn = true;
+    // No player has the turn
+
+    let startingPlayer = activePlayers.find(player => player.username == username)
+    if (startingPlayer == undefined) {
+      // No valid starting player was provided - give the first player the turn
+      activePlayers[0].isTheirTurn = true;
+    } else {
+      // Give the turn to the player with the provided username
+      startingPlayer.isTheirTurn = true;
+    }
+    
   } else if (turnIndex == activePlayers.length - 1) {
     // The last player has the turn - give it to the first player
     activePlayers[turnIndex].isTheirTurn = false;
@@ -277,7 +339,11 @@ function advanceTurn(game) {
   }
 }
 
-
+/**
+ * Calculates the number of points the provided hand is worth
+ * @param {array} array 
+ * @returns {int} points
+ */
 function countHandPoints(array) {
   let points = 0;
   for (let i = 1; i < 8; i++) {
