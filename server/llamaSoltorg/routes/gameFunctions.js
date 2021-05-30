@@ -17,7 +17,7 @@ function convertGameToResponse(game, username) {
       "points": player.points,
       "isTheirTurn": player.isTheirTurn,
       "hasQuitRound": player.hasQuitRound,
-      "numOfCards": 0,
+      "numOfCards": player.cards.length,
     })
     // Add this player's info to object root for easy access
     if (player.username == username) {
@@ -56,7 +56,6 @@ function addPlayer(game, username) {
       "cards": [],
       "hasQuitRound": false,
       "isTheirTurn": false,
-      "numOfCards": player.cards.length,
     }
   )
   game.events.push(
