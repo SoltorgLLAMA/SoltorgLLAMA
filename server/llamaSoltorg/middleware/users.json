@@ -1,10 +1,9 @@
-[
-  {
-    "username": "jesperhash7",
-    "password": "$2b$10$gvUaWcL.XVWyKDIuKWN/HOTzfpb8b5CPb2CqAjGF/cZJmDPtbJAa2"
-  },
-  {
-    "username": "jesperhash8",
-    "password": "$2b$10$HgLhcsLH0RRodFDTnS5NxuESodxawItX7hPrntBX281f98ftplNJy"
-  }
+[{
+        "username": "jesperhash7",
+        "password": "$2b$10$gvUaWcL.XVWyKDIuKWN/HOTzfpb8b5CPb2CqAjGF/cZJmDPtbJAa2"
+    },
+    {
+        "username": "jesperhash8",
+        "password": "$2b$10$HgLhcsLH0RRodFDTnS5NxuESodxawItX7hPrntBX281f98ftplNJy"
+    }
 ]
