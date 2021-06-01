@@ -350,7 +350,11 @@ function countHandPoints(array) {
   let points = 0;
   for (let i = 1; i < 8; i++) {
     if (array.includes(i)) {
-      points += i;
+      if (i == 7) {
+        points += 10
+      } else {
+        points += i;
+      }
     }
   }
   return points;
