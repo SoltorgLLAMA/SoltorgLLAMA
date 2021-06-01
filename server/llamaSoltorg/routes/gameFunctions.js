@@ -134,7 +134,7 @@ function endRound(game, startingPlayerUsername) {
 
     player.isTheirTurn = false
 
-    let gainedPoints
+    let gainedPoints = 0;
 
     // Check if player won round and should 
     // get to remove some points
