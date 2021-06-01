@@ -43,22 +43,21 @@ function login(request, response, next) {
     let InputPassword = request.body.credentials.password;
 
     console.log("Login middleware");
-    
+
     let validUsername = !!users.find(user => {
         return user.username === InputUsername;
     });
     let validPassword = !!users.find(user => {
         return user.password === InputPassword;
     });
-    
+
     if (validUsername && validPassword) {
         console.log('Login by user: ' + InputUsername);
         return next();
     }
 
-    response.status(401).send("Login failed");
-    response.redirect('/');
     console.log('Failed login');
+    response.status(401).send("Login failed").redirect('/');
 }
 
 module.exports = {
