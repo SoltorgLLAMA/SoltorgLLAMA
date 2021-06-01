@@ -237,6 +237,8 @@ function playCard(game, username, card) {
     if (!(card == 1 && game.discardPile[game.discardPile.length - 1] == 7)) {
       throw "Card value is too low."
     }
+  } else if (card > game.discardPile[game.discardPile.length - 1] + 1) {
+    throw "Card value is too high"
   }
 
   // Play card and remove it from hand
