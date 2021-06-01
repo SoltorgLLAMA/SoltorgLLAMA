@@ -1,7 +1,9 @@
 const fs = require("fs");
+const bcrypt = require('bcrypt');
 var bodyParser = require("body-parser");
 const { json } = require("body-parser");
 var users = require('./users.json');
+const saltRounds = 10;
 
 /*
     Middleware for login
@@ -21,9 +23,12 @@ function createAccount(request, response, next) {
     console.log(usernameTaken);
 
     if (!usernameTaken) {
+
+        let hash = bcrypt.hashSync(InputPassword, 10);
+
         let newUser = {
             username: InputUsername,
-            password: InputPassword
+            password: hash
         };
         users.push(newUser);
         let newStringUser = JSON.stringify(users, null, 2);
@@ -31,9 +36,8 @@ function createAccount(request, response, next) {
 
         return next();
     }
-    response.status(400).send("Username already taken, username: " + InputUsername);
     console.log("Username already taken, username: " + InputUsername);
-    response.redirect('/');
+    response.status(400).send("Username already taken, username: " + InputUsername);
 }
 
 /** Logins by checking against users.json */
@@ -41,6 +45,7 @@ function login(request, response, next) {
 
     let InputUsername = request.body.credentials.username;
     let InputPassword = request.body.credentials.password;
+    let InputPasswordHash = bcrypt.hashSync(InputPassword, 10);
 
     console.log("Login middleware");
 
@@ -48,8 +53,10 @@ function login(request, response, next) {
         return user.username === InputUsername;
     });
     let validPassword = !!users.find(user => {
-        return user.password === InputPassword;
+        return bcrypt.compareSync(InputPassword, user.password);
     });
+
+
 
     if (validUsername && validPassword) {
         console.log('Login by user: ' + InputUsername);
@@ -57,7 +64,7 @@ function login(request, response, next) {
     }
 
     console.log('Failed login');
-    response.status(401).send("Login failed").redirect('/');
+    response.status(401).send("Login failed");
 }
 
 module.exports = {

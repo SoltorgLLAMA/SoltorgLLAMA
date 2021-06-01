@@ -1,31 +1,10 @@
 [
   {
-    "username": "jesper",
-    "password": "hej"
+    "username": "jesperhash7",
+    "password": "$2b$10$gvUaWcL.XVWyKDIuKWN/HOTzfpb8b5CPb2CqAjGF/cZJmDPtbJAa2"
   },
   {
-    "username": "jesper2",
-    "password": "hej"
-  },
-  {
-    "username": "eejesper",
-    "password": "test"
-  },
-  {
-    "username": "ee2jesper",
-    "password": "test"
-  },
-  {
-    "username": "grej",
-    "password": "sak"
-  },
-  {},
-  {
-    "username": "shoulder",
-    "password": "plsdonthackme"
-  },
-  {
-    "username": "Uno",
-    "password": "Uno"
+    "username": "jesperhash8",
+    "password": "$2b$10$HgLhcsLH0RRodFDTnS5NxuESodxawItX7hPrntBX281f98ftplNJy"
   }
 ]
