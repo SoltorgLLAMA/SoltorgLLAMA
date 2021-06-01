@@ -6,10 +6,9 @@ var users = require('./users.json');
 const saltRounds = 10;
 
 /*
-    Middleware for login
+    Middleware for login and signup
     Checking username and password against db/file
-    TODO:
-            better redirect to show why fail
+    All passwords are hashed and salted
 */
 
 /** Creates account and adds to file users.json */
@@ -24,7 +23,7 @@ function createAccount(request, response, next) {
 
     if (!usernameTaken) {
 
-        let hash = bcrypt.hashSync(InputPassword, 10);
+        let hash = bcrypt.hashSync(InputPassword, 10); // Hash password
 
         let newUser = {
             username: InputUsername,
@@ -32,7 +31,7 @@ function createAccount(request, response, next) {
         };
         users.push(newUser);
         let newStringUser = JSON.stringify(users, null, 2);
-        fs.writeFileSync("./middleware/users.json", newStringUser);
+        fs.writeFileSync("./middleware/users.json", newStringUser); // Write new user to users.json
 
         return next();
     }
@@ -45,7 +44,6 @@ function login(request, response, next) {
 
     let InputUsername = request.body.credentials.username;
     let InputPassword = request.body.credentials.password;
-    let InputPasswordHash = bcrypt.hashSync(InputPassword, 10);
 
     console.log("Login middleware");
 
@@ -53,7 +51,7 @@ function login(request, response, next) {
         return user.username === InputUsername;
     });
     let validPassword = !!users.find(user => {
-        return bcrypt.compareSync(InputPassword, user.password);
+        return bcrypt.compareSync(InputPassword, user.password); // Compares hashed password
     });
 
 
