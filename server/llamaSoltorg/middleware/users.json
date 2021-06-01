@@ -27,5 +27,17 @@
   {
     "username": "Uno",
     "password": "Uno"
+  },
+  {
+    "username": "",
+    "password": ""
+  },
+  {
+    "username": "Lucas",
+    "password": "Krukas"
+  },
+  {
+    "username": "Max",
+    "password": "12345"
   }
 ]
