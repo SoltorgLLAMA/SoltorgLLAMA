@@ -270,6 +270,9 @@ function drawCard(game, username) {
     throw "Draw pile is empty"
   } else {
     let player = game.players.find(player => player.username == username)
+    if (player.hasQuitRound) {
+      throw "You cannot draw cards once you have left the round"
+    }
     let newCard = game.drawPile.pop()
     player.cards.push(newCard)
     advanceTurn(game)
@@ -344,7 +347,7 @@ function advanceTurn(game, username) {
 /**
  * Calculates the number of points the provided hand is worth
  * @param {array} array 
- * @returns {int} points
+ * @returns {int} points 
  */
 function countHandPoints(array) {
   let points = 0;
