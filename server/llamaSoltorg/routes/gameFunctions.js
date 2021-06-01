@@ -141,7 +141,7 @@ function endRound(game, startingPlayerUsername) {
     if (player.cards.length == 0) {
       if (player.points >= 10) {
         gainedPoints = -10
-      } else {
+      } else if (player.points > 0) {
         gainedPoints = -1
       }
     } else {
