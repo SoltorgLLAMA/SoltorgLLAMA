@@ -270,9 +270,13 @@ function drawCard(game, username) {
     throw "Draw pile is empty"
   } else {
     let player = game.players.find(player => player.username == username)
-    if (player.hasQuitRound) {
-      throw "You cannot draw cards once you have left the round"
+    let opponents = [...game.players]
+    opponents.remove(player)
+
+    if (!opponents.some((o) => !o.hasQuitRound)) {
+      throw "You cannot draw cards when you are the only one left this round"
     }
+    
     let newCard = game.drawPile.pop()
     player.cards.push(newCard)
     advanceTurn(game)
