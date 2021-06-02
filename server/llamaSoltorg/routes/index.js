@@ -203,6 +203,7 @@ router.post("/action", function (request, response) {
         response.send({ drawnCard: drawnCard });
       } catch (error) {
         response.status(400).send(error);
+        print(error)
       }
     } else if (action >= 1 && action <= 7) {
       // Play card
